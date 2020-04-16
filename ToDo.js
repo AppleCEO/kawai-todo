@@ -9,14 +9,14 @@ export default class ToDo extends Component {
         super(props);
         this.state = { isEditing: false, toDoValue: props.text };
     }
-    static propTypes = { text: PropTypes.string.isRequired, isCompleted: PropTypes.bool.isRequired, deleteToDo: PropTypes.func.isRequired, id: PropTypes.string.isRequired, uncompletedToDo: PropTypes.func.isRequired, completeToDo: PropTypes.func.isRequired }
+    static propTypes = { text: PropTypes.string.isRequired, isCompleted: PropTypes.bool.isRequired, deleteToDo: PropTypes.func.isRequired, id: PropTypes.string.isRequired, uncompleteToDo: PropTypes.func.isRequired, completeToDo: PropTypes.func.isRequired, updateToDo: PropTypes.func.isRequired }
     state = {
         isEditing: false,
         toDoValue: ""
     };
     render() {
-        const {isCompleted, isEditing, toDoValue } = this.state;
-        const { text, id, deleteToDo } = this.props;
+        const { isEditing, toDoValue } = this.state;
+        const { text, id, deleteToDo, isCompleted } = this.props;
         return (
             <View style={styles.container}>
                 <View styels={styles.column}>
@@ -52,11 +52,12 @@ export default class ToDo extends Component {
         );
     }
     _toggleComplete = () => {
-        this.setState(prevState => {
-            return {
-                isCompleted: !prevState.isCompleted
-            };
-        });
+        const { isCompleted, uncompleteToDo, completeToDo, id } = this.props;
+        if(isCompleted){
+            uncompleteToDo(id)   
+        } else {
+            completeToDo(id)
+        }
     };
 
     _startEditing = () => {
@@ -64,6 +65,10 @@ export default class ToDo extends Component {
             isEditing: true });
 };
     _finishEditing = () => {
+        const {toDoValue } = this.state;
+        const { id, updateToDo } = this.props;
+        updateToDo(id, toDoValue);
+
         this.setState({
             isEditing: false
         });
@@ -73,36 +78,7 @@ export default class ToDo extends Component {
             toDoValue: text
         });
     }
-    _uncompletedToDo = (id) => {
-        this.setState(prevState => {
-            const newState = {
-                ...prevState,
-                toDos: {
-                    ...prevState.toDos, 
-                    [id]: {
-                        ...prevState.toDos[id],
-                        isCompleted: false
-                    }
-                }
-            }
-        })
-        return { ...newState };
-    }
-    _completedToDo = (id) => {
-        this.setState(prevState => {
-            const newState = {
-                ...prevState,
-                toDos: {
-                    ...prevState.toDos, 
-                    [id]: {
-                        ...prevState.toDos[id],
-                        isCompleted: true
-                    }
-                }
-            }
-        })
-        return { ...newState };
-    }
+    
 };
 
 const styles = StyleSheet.create({
